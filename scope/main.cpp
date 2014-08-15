@@ -53,7 +53,7 @@ int main ()
 
     const int   kNChannels  = 3;            // Number of channels to generate
     const float kRandScale  = 0.05f;        // Maximum step size
-    const float kFs        = 500.0f;       // Desired step frequency, Hz
+    const float kFs         = 100.0f;       // Desired step frequency, Hz
 
     // -- Initialization -- //
 
@@ -94,7 +94,7 @@ int main ()
         if ( cycleClock.read() < kDt )
             continue;
         // Restart the clock for the next cycle.
-        cycleClock.stop(); cycleClock.start();
+        cycleClock.stop(); cycleClock.reset(); cycleClock.start();
 
         // For each data point, take a random step.
         for ( int i = 0; i < kNChannels; i ++ )

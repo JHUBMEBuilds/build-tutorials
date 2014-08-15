@@ -25,7 +25,10 @@ float[][] dataBuffer = new float[nChannels][theWidth];
 float[] curDataMax = new float[nChannels];
 float[] curDataMin = new float[nChannels];
 
-float boundDamping = 0.1f;
+float fastBoundDamping = 0.12f;
+float boundDamping = 0.05f;
+
+float dynamicRange = 0.7f;
 
 color[] colors = new color[nChannels];
 color backgroundColor = color(30);
@@ -78,7 +81,7 @@ int getPointY (float datum, float minDat, float maxDat)
   
   //return (int)(50.0f * datum) + (height/2);
   float datNorm = (datum - minDat) / (maxDat - minDat);
-  datNorm = 0.1f + (0.8f * datNorm);
+  datNorm = ((1.0f - dynamicRange) / 2.0f) + (dynamicRange * datNorm);
   return (int)((float)height * (1.0f - datNorm));
   //return height * (int)(1.0f - ((datum - minDat) / (maxDat - minDat)));
 }
@@ -103,12 +106,12 @@ void renderData ()
     }
     
     if ( dataMin[i] < curDataMin[i] )
-      curDataMin[i] = dataMin[i];
+      curDataMin[i] += (dataMin[i] - curDataMin[i]) * fastBoundDamping;
     else
       curDataMin[i] += (dataMin[i] - curDataMin[i]) * boundDamping;
     
     if ( dataMax[i] > curDataMax[i] )
-      curDataMax[i] = dataMax[i];
+      curDataMax[i] += (dataMax[i] - curDataMax[i]) * fastBoundDamping;
     else
       curDataMax[i] += (dataMax[i] - curDataMax[i]) * boundDamping;
   }
