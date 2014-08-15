@@ -19,27 +19,33 @@ String myString;
 int lf = int('\n');
 
 int nChannels = 3;
-int theWidth = 1000;
+int theWidth = 1200;
 
 float[][] dataBuffer = new float[nChannels][theWidth];
 float[] curDataMax = new float[nChannels];
 float[] curDataMin = new float[nChannels];
 
 float fastBoundDamping = 0.12f;
-float boundDamping = 0.05f;
+float boundDamping = 0.08f;
 
 float dynamicRange = 0.7f;
 
 color[] colors = new color[nChannels];
 color backgroundColor = color(30);
 
-float[] filterCoeffs = {1.0f/7.0f, 1.0f/7.0f, 1.0f/7.0f, 1.0f/7.0f, 1.0f/7.0f, 1.0f/7.0f, 1.0f/7.0f};
+//float[] filterCoeffs = {1.0f};
+// Moving average
+int avgMax = 20;
+float[] filterCoeffs = new float[avgMax];
 
 void setup ()
 {
-  size(theWidth, 500);
+  size(theWidth, 600);
   // TODO: Kinda broken.
   String portName = Serial.list()[2];
+  
+  for (int i = 0; i < avgMax; i++)
+    filterCoeffs[i] = 1.0f / (float)avgMax;
   
   myPort = new Serial(this, portName, 115200);
   myString = null;
@@ -151,10 +157,20 @@ void renderData ()
   for (int i = 0; i < nChannels; i++)
   {
     stroke(colors[i]);
+    strokeWeight(2);
     beginShape();
     for (int j = 0; j < theWidth; j++)
     {
       vertex(j, getPointY(dataDisp[i][j], curDataMin[i], curDataMax[i]));
+    }
+    endShape();
+    
+    //stroke(colors[i]);
+    //strokeWeight(3);
+    beginShape(POINTS);
+    for (int j = 0; j < theWidth; j++)
+    {
+      vertex(j, getPointY(dataBuffer[i][j], curDataMin[i], curDataMax[i]));
     }
     endShape();
   }
