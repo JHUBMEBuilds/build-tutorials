@@ -51,9 +51,9 @@ int main ()
 
     // -- Parameter definitions -- //
 
-    const int   kNChannels  = 3;            // Number of channels to generate
+    const int   kNChannels  = 5;            // Number of channels to generate
     const float kRandScale  = 0.05f;        // Maximum step size
-    const double kFs        = 500.0;       // Desired step frequency, Hz
+    const float kFs        = 500.0f;       // Desired step frequency, Hz
 
     // -- Initialization -- //
 
@@ -68,7 +68,7 @@ int main ()
     srand( time( NULL ) );
 
     // Compute the desiredd time difference between steps.
-    const double kDt = 1.0 / kFs;
+    const float kDt = 1.0f / kFs;
 
     // Declare and initialize our data array.
     float data [kNChannels];
@@ -78,10 +78,10 @@ int main ()
     // Start our serial communication by printing our initialized data
     printArray( data, kNChannels );
 
-    // Initialize the timers, and cache the current system time.
-    time_t startTimer, lastTimer, curTimer;
-    time( &startTimer );
-    time( &lastTimer );
+    // Initialize the timers.
+    Timer appClock, cycleClock;
+    appClock.start();
+    cycleClock.start();
 
     // Keep track of the number of seconds since we started.
     int nSeconds = 0;
@@ -90,18 +90,18 @@ int main ()
     while ( true )
     {
 
-        // Get the current time.
-        time( &curTimer );
         // Has enough time passed? If not, keep waiting.
-        if ( difftime( curTimer, lastTimer ) < kDt )
+        if ( cycleClock.read() < kDt )
             continue;
+        // Restart the clock for the next cycle.
+        cycleClock.stop(); cycleClock.start();
 
         // For each data point, take a random step.
         for ( int i = 0; i < kNChannels; i ++ )
             data[ i ] = data[ i ] + kRandScale * ( -1.0f + 2.0f * randFloat() );
 
         // Check and see if we've added another second.
-        int curNSeconds = (int)difftime( curTimer, startTimer );
+        int curNSeconds = (int)appClock.read();
         if ( curNSeconds > nSeconds )
         {
             // If so, update the second counter and toggle the LED.
@@ -111,9 +111,6 @@ int main ()
 
         // Finally, print the data over the serial port.
         printArray( data, kNChannels );
-
-        // Update the last timer with this cycle's time.
-        lastTimer = curTimer;
 
     }
 
