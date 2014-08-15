@@ -51,7 +51,7 @@ int main ()
 
     // -- Parameter definitions -- //
 
-    const int   kNChannels  = 5;            // Number of channels to generate
+    const int   kNChannels  = 3;            // Number of channels to generate
     const float kRandScale  = 0.05f;        // Maximum step size
     const float kFs        = 500.0f;       // Desired step frequency, Hz
 
