@@ -33,6 +33,8 @@ float dynamicRange = 0.7f;
 color[] colors = new color[nChannels];
 color backgroundColor = color(30);
 
+float[] filterCoeffs = {1.0f/7.0f, 1.0f/7.0f, 1.0f/7.0f, 1.0f/7.0f, 1.0f/7.0f, 1.0f/7.0f, 1.0f/7.0f};
+
 void setup ()
 {
   size(theWidth, 500);
@@ -63,6 +65,28 @@ void setup ()
   //colors[4] = color(0, 0, 200);
 }
 
+float[][] firFilt ( float[] ir, float[][] data )
+{
+  float[][] ret = new float[data.length][data[0].length];
+  
+  for ( int ch = 0; ch < data.length; ch ++ )
+  {
+    for ( int n = 0; n < data[0].length; n ++ )
+    {
+      float denom = 0.0f;
+      ret[ch][n] = 0.0f;
+      for ( int k = 0; (k < ir.length) && ((n - k) >= 0); k ++ )
+      {
+        ret[ch][n] += ir[k] * data[ch][n - k];
+        denom += abs(ir[k]);
+      }
+      ret[ch][n] /= denom;
+    }
+  }
+  
+  return ret;
+}
+
 void shiftData ()
 {
   for (int i = 0; i < nChannels; i++)
@@ -88,6 +112,8 @@ int getPointY (float datum, float minDat, float maxDat)
 
 void renderData ()
 {
+  float[][] dataDisp = firFilt(filterCoeffs, dataBuffer);
+  
   // Find the min and max of the data
   
   float[] dataMin = new float[nChannels];
@@ -95,14 +121,14 @@ void renderData ()
   
   for (int i = 0; i < nChannels; i++)
   {
-    dataMin[i] = dataBuffer[i][0];
-    dataMax[i] = dataBuffer[i][0];
+    dataMin[i] = dataDisp[i][0];
+    dataMax[i] = dataDisp[i][0];
     for (int j = 1; j < theWidth; j++)
     {
-      if (dataBuffer[i][j] > dataMax[i])
-        dataMax[i] = dataBuffer[i][j];
-      else if (dataBuffer[i][j] < dataMin[i])
-        dataMin[i] = dataBuffer[i][j];
+      if (dataDisp[i][j] > dataMax[i])
+        dataMax[i] = dataDisp[i][j];
+      else if (dataDisp[i][j] < dataMin[i])
+        dataMin[i] = dataDisp[i][j];
     }
     
     if ( dataMin[i] < curDataMin[i] )
@@ -128,7 +154,7 @@ void renderData ()
     beginShape();
     for (int j = 0; j < theWidth; j++)
     {
-      vertex(j, getPointY(dataBuffer[i][j], curDataMin[i], curDataMax[i]));
+      vertex(j, getPointY(dataDisp[i][j], curDataMin[i], curDataMax[i]));
     }
     endShape();
   }
