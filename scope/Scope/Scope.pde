@@ -18,8 +18,8 @@ String myString;
 
 int lf = int('\n');
 
-int nChannels = 3;
-int theWidth = 1200;
+int nChannels = 2;
+int theWidth = 300;
 
 float[][] dataBuffer = new float[nChannels][theWidth];
 float[] curDataMax = new float[nChannels];
@@ -30,7 +30,13 @@ float boundDamping = 0.08f;
 
 float dynamicRange = 0.7f;
 
-color[] colors = new color[nChannels];
+color[] colors = {color(255, 128, 0), color(0, 128, 255)}; // = new color[nChannels];
+//colors[0] = color(255, 128, 0);
+//colors[1] = color(0, 128, 255);
+//colors[2] = color(255, 255, 255);
+//colors[3] = color(0, 200, 0);
+//colors[4] = color(0, 0, 200);
+
 color backgroundColor = color(30);
 
 //float[] filterCoeffs = {1.0f};
@@ -63,12 +69,6 @@ void setup ()
       dataBuffer[i][j] = 0.0f;
     }
   }
-  
-  colors[0] = color(255, 128, 0);
-  colors[1] = color(0, 128, 255);
-  colors[2] = color(255, 255, 255);
-  //colors[3] = color(0, 200, 0);
-  //colors[4] = color(0, 0, 200);
 }
 
 float[][] firFilt ( float[] ir, float[][] data )
